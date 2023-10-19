@@ -1,32 +1,21 @@
-import numpy as np
-import torch
-
-from PIL import Image
-from torchvision.transforms import transforms
-from torchvision.models import resnet50, ResNet50_Weights
-
 from Classifier import MahalanobisClassifier
 from Data import CIFARDataset, FashionMNISTDataset
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2).to(device)
-model.eval()
 
-dataset = CIFARDataset()
+pca_dim = 600
+lda_dim = 8
+
+dataset = FashionMNISTDataset(pca=True, lda=True, pca_dim=pca_dim, lda_dim=lda_dim)
 
 train_x, train_y = dataset.train_x, dataset.train_y
 test_x, test_y = dataset.test_x, dataset.test_y
-
-dim = 1
-
-dataset = FashionMNISTDataset(lda=True, lda_dim=dim)
 
 classifier = MahalanobisClassifier(dataset.num_class)
 
 classifier.train(train_x, train_y)
 
 accuracy = classifier.test(test_x, test_y)
-s = "LDA(n = {})".format(dim) + str(accuracy)
+s = "PCA(n = {}) LDA(n = {})".format(pca_dim, lda_dim) + str(accuracy)
 
 print(s)
 
